@@ -2,6 +2,7 @@ import base64
 from algorithm import Algorithm
 from Crypto.Cipher import AES as AESL
 import os
+import pdb
 BLOCK_SIZE = 16
 
 class AES(Algorithm):
@@ -41,6 +42,7 @@ class AES(Algorithm):
         aes = AESL.new(key, mode)
         new_data = aes.encrypt(data)
         return new_data
+
     def decryption(self, **kwargs):
         if not "ciphertext" in kwargs:
             decrypted = None
@@ -52,3 +54,26 @@ class AES(Algorithm):
             decrypted = aes.decrypt(base64.b64decode(ciphertext)).decode()
             decrypted = decrypted[0:-ord(decrypted[-1])]
         return decrypted
+
+    def aes_ecb_decrypt(self, data, mode=AESL.MODE_ECB):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        aes = AESL.new(key, mode)
+        new_data = aes.decrypt(data)
+        return new_data
+    def aes_cbc_encrypt(self, data, mode=AESL.MODE_CBC):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        new_data = aes.encrypt(data)
+        return new_data
+    def aes_cbc_decrypt(self, data, mode=AESL.MODE_CBC):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        # iv = "0" * 16
+        iv = data[:BLOCK_SIZE]
+        aes = AESL.new(key, mode, iv)
+        pdb.set_trace()
+        new_data = aes.decrypt(data[BLOCK_SIZE:])
+        return new_data
