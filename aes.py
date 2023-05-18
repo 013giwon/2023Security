@@ -61,6 +61,16 @@ class AES(Algorithm):
         aes = AESL.new(key, mode)
         new_data = aes.decrypt(data)
         return new_data
+
+    def aes_ecb_decrypt_wrong(self, data, mode=AESL.MODE_ECB):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        aes = AESL.new(key, mode)
+        data = data[:-BLOCK_SIZE]
+        data = b"\x01" * 16 + data#(16 - len(data) % 16)
+        new_data = aes.decrypt(data)
+        return new_data
+
     def aes_cbc_encrypt(self, data, mode=AESL.MODE_CBC):
         #The default mode is ECB encryption
         key = self.keypair["private"]
@@ -68,12 +78,43 @@ class AES(Algorithm):
         aes = AESL.new(key, mode, iv.encode())
         new_data = aes.encrypt(data)
         return new_data
-    def aes_cbc_decrypt(self, data, mode=AESL.MODE_CBC):
-        #The default mode is ECB encryption
+
+    def aes_ofb_encrypt(self, data, mode=AESL.MODE_OFB):
+        #The default mode is OFB  encryption
         key = self.keypair["private"]
-        # iv = "0" * 16
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        new_data = aes.encrypt(data)
+        return new_data
+
+    def aes_cbc_decrypt_wrong(self, data, mode=AESL.MODE_CBC):
+        #The default mode is CBC decryption
+        key = self.keypair["private"]
         iv = data[:BLOCK_SIZE]
         aes = AESL.new(key, mode, iv)
-        pdb.set_trace()
+        new_data = aes.decrypt(data[BLOCK_SIZE:])
+        return new_data
+
+    def aes_cbc_decrypt(self, data, mode=AESL.MODE_CBC):
+        #The default mode is CBC decryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        # new_data = aes.decrypt(data)
+        new_data = aes.decrypt(data[:-BLOCK_SIZE])
+        return new_data
+
+    def aes_ofb_decrypt(self, data, mode=AESL.MODE_OFB):
+        #The default mode is OFB decryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        new_data = aes.decrypt(data[:-BLOCK_SIZE])
+        return new_data
+    def aes_ofb_decrypt_wrong(self, data, mode=AESL.MODE_OFB):
+        #The default mode is OFB decryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
         new_data = aes.decrypt(data[BLOCK_SIZE:])
         return new_data
