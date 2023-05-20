@@ -15,8 +15,16 @@ class AES(Algorithm):
         klen = self.params["klen"]
         kbytes = (int)(klen/8)
         #key = open("/dev/urandom", "rb").read(kbytes)
-        key =  os.urandom(kbytes)
+
+        # key =  os.urandom(kbytes)
+        with open("key.bin", "rb") as f:
+            key = f.read()
+        #pdb.set_trace()
         self.keypair["private"] = key
+        
+        # f = open("key.bin", 'wb')
+        # f.write(key)
+        # f.close()
 
     def print_keypair(self):
         private = self.keypair["private"].export_key()
