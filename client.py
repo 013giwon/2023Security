@@ -6,7 +6,7 @@ from aes import AES
 import numpy as np
 import logging
 import pdb
-# from patches import patches
+from patches import Patches
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 9505
@@ -39,13 +39,17 @@ while True:
     time.sleep(2)
 
     filename = "target.jpg"
-    im = Image.open(filename)
-    
-    value_vector = im.convert("RGB").tobytes()
+    original_img = Image.open(filename)
+    patch = Patches()
+    pdb.set_trace()
+    img_patched = patch.patch_generation(original_img, 63,63)
+    cv2.imwrite("client_img_patched.jpg", img_patched)
+    im = trans_format_RGB(img_patched)
+
+    value_vector = img_patched.tobytes()
     print(len(value_vector))
     imlength = len(value_vector)
-    # pdb.set_trace()
- #-------------------------------
+
     if mode == "ecb":
         start2 = time.time()
         encrypted_vector = aes.aes_ecb_encrypt(aes.pad(value_vector))
@@ -58,14 +62,12 @@ while True:
         start2 = time.time()
         encrypted_vector = aes.aes_ofb_encrypt(aes.pad(value_vector))
         end2 = time.time()
-    # value_encrypt = trans_format_RGB(encrypted_vector[:imlength])
+
     value_encrypt = np.array(encrypted_vector)
     d = value_encrypt.flatten()
     s = d.tostring()
     pdb.set_trace()
-    # ssss = np.fromstring(s, dtype=np.uint8)
-    # im = Image.new(mode="RGB", size=(int(np.sqrt(len(ssss)/3)),int(np.sqrt(len(ssss)/3))))
-    # im.putdata(ssss)
+
     encrypted_vector = s #im.convert("RGB").tobytes()
     if mode == "ecb":
         start3 = time.time()
@@ -83,9 +85,7 @@ while True:
             decrypted_vector = aes.aes_ofb_decrypt(encrypted_vector)
         end3 = time.time()
     just_vector = decrypted_vector
- #-------------------------------
-    ##value_vector = np.array(value_vector)
-    ##d = value_vector.flatten()
+
     
    
 
@@ -102,17 +102,17 @@ while True:
 
         #-------------------------------
         
-    pdb.set_trace()
-    # imlength = len(picture)
-    just_value =trans_format_RGB(just_vector[:imlength])
-    pdb.set_trace()
-    picture_size = int (np.sqrt((np.array(just_value).size/3)))
-    just_array = np.array(just_value).reshape(picture_size, picture_size, 3)
-    # opencv_image=cv2.cvtColor(np.array(just_value), cv2.COLOR_RGB2BGR)
+    # pdb.set_trace()
+    # # imlength = len(picture)
+    # just_value =trans_format_RGB(just_vector[:imlength])
+    # pdb.set_trace()
+    # picture_size = int (np.sqrt((np.array(just_value).size/3)))
+    # just_array = np.array(just_value).reshape(picture_size, picture_size, 3)
+    # # opencv_image=cv2.cvtColor(np.array(just_value), cv2.COLOR_RGB2BGR)
 
-    cv2.imwrite("client_tcp_dec_cv2.jpg", just_array)
-    im = Image.new(mode="RGB", size=(picture_size,picture_size))
-    im.putdata(just_value)
-    im.save("client_tcp_dec_pil.jpg")
+    # cv2.imwrite("client_tcp_dec_cv2.jpg", just_array)
+    # im = Image.new(mode="RGB", size=(picture_size,picture_size))
+    # im.putdata(just_value)
+    # im.save("client_tcp_dec_pil.jpg")
     # sock.sendto(value_encrypt, (TCP_IP, TCP_PORT))
 #https://awakening95.tistory.com/1
