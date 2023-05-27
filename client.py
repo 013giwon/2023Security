@@ -42,13 +42,16 @@ while True:
     original_img = Image.open(filename)
     patch = Patches()
     pdb.set_trace()
-    img_patched = patch.patch_generation(original_img, 63,63)
+    img_patched, pos, patch_num = patch.patch_generation(original_img, 63,63)
     cv2.imwrite("client_img_patched.jpg", img_patched)
     im = trans_format_RGB(img_patched)
-
     value_vector = img_patched.tobytes()
-    print(len(value_vector))
-    imlength = len(value_vector)
+    value_vector2 = img_patched.tobytes()  + pos.tobytes() + patch_num.tobytes()
+    # print(len(value_vector))
+    print(len(value_vector2))
+
+    imlength = len(value_vector2)
+    # imlength = len(value_vector)
 
     if mode == "ecb":
         start2 = time.time()

@@ -17,14 +17,14 @@ class AES(Algorithm):
         #key = open("/dev/urandom", "rb").read(kbytes)
 
         # key =  os.urandom(kbytes)
-        with open("key.bin", "rb") as f:
-            key = f.read()
-        #pdb.set_trace()
-        self.keypair["private"] = key
-        
-        # f = open("key.bin", 'wb')
+               # f = open("key.bin", 'wb')
         # f.write(key)
         # f.close()
+        with open("key.bin", "rb") as f:
+            key = f.read()
+        self.keypair["private"] = key
+        
+ 
 
     def print_keypair(self):
         private = self.keypair["private"].export_key()

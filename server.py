@@ -8,8 +8,8 @@ from aes import AES
 import pdb
 import base64
 from PIL import Image
-UDP_IP = "127.0.0.1"
-UDP_PORT = 9505
+TCP_IP = "127.0.0.1"
+TCP_PORT = 9505
 mode = "ecb"
 
 iteration = 1
@@ -21,7 +21,7 @@ def trans_format_RGB(data):
     pixels = tuple(zip(red, green, blue))
     return pixels
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM ) #socket.SOCK_DGRAM)
-sock.bind((UDP_IP, UDP_PORT))
+sock.bind((TCP_IP, TCP_PORT))
 sock.listen(True)
 
 
