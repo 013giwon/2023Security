@@ -8,6 +8,7 @@ import pdb
 class Patches():
     def __init__(self):
         pass
+
     def patch_generation(self, GT, stride, patch_size ):
     
         #GT = image = np.array(Image.open('Jungkook.png'))
@@ -15,7 +16,6 @@ class Patches():
         stride = int(stride)
         patch_size = int(patch_size)
 
-        # total 개수 세는 법을 모르겠어서,,,우선 야매,,
         total =  (GT.shape[0]//(patch_size)) * (GT.shape[1]//(patch_size))
         num_patches = 0
         hr_patches = [[] for _ in range(total+1)] # img, position, patch_num
@@ -31,9 +31,6 @@ class Patches():
         # for i in range(1, total+1):
         #     cv2.imwrite("patch_img{}.jpg".format(i), hr_patches[i][0])
 
-        im_h, im_w = GT.shape[0], GT.shape[1]
-
-        
         patches_img =np.copy(GT)
         patches_img.fill(1)
         img_num_pos = []
@@ -41,27 +38,46 @@ class Patches():
         patch_num = []
         for i in range(1, total+1):
                 pos_original.append(hr_patches[i][1])
-                img_num_pos.append([hr_patches[i][0],hr_patches[i][2]])
+                img_num_pos.append([hr_patches[i][2]])
                 patch_num.append(hr_patches[i][2])
         
         indices = np.arange(len(pos_original))
-        # print(pos)
         random.shuffle(indices)
+        
         pos = []
         for i in range(len(pos_original)):
-            pos[i] = pos_original[indices[i]]
-        pdb.set_trace()
-        # random.shuffle(pos)
+            pos.append(pos_original[indices[i]])
+
+        for i in range(total):
+            img_num_pos[i].append(pos[i])
+            img_num_pos[i].append(indices[i])
+            
         for i in range(0, total):
-
             patches_img[pos[i][0]:pos[i][0] +patch_size,pos[i][1]:pos[i][1] + patch_size,: ] = hr_patches[i+1][0]
-        
-        print(pos)
 
+ 
         for j in range(0, total):
             img_num_pos[j].append(pos[j])
-        pdb.set_trace()
-        print(len(img_num_pos)) # pos, patch_num, img, idx
-        print(img_num_pos)
+        # print(img_num_pos) # img_num_pos = [shuffled_idx, original_pos, original_idx, shuffled_pos]
+        return patches_img, img_num_pos
+ 
+    # shuff_key_list = [stride, patch_size, shuffled_dix]
+    def patch_reconst(self, shuff_k, GT):             
 
-        return patches_img, pos, indices#img_num_pos
+        patch_size = shuff_k[1]
+        stride = shuff_k[0]
+        shuff_idx = shuff_k[2:]
+
+        rec_pos = []
+        patches_img =np.copy(GT)
+        patches_img.fill(1)
+        pos_original = []
+        for i in range(0, GT.shape[0] - patch_size + 1, stride):
+            for j in range(0, GT.shape[1] - patch_size + 1, stride):
+                pos_original.append((i,j)) # position
+        for i in range(len(shuff_idx)):
+            rec_pos.append(pos_original[shuff_idx[i]])
+        for i in range(len(shuff_idx)):
+            patches_img[pos_original[i][0]:pos_original[i][0] + patch_size,pos_original[i][1]:pos_original[i][1] + patch_size,: ] = GT[rec_pos[i][0]:rec_pos[i][0] + patch_size,rec_pos[i][1]:rec_pos[i][1] + patch_size,: ]
+        return patches_img
+    # pdb.set_trace()

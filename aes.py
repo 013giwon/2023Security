@@ -1,6 +1,7 @@
 import base64
 from algorithm import Algorithm
 from Crypto.Cipher import AES as AESL
+from Crypto.Util import Counter
 import os
 import pdb
 BLOCK_SIZE = 16
@@ -17,14 +18,14 @@ class AES(Algorithm):
         #key = open("/dev/urandom", "rb").read(kbytes)
 
         # key =  os.urandom(kbytes)
-               # f = open("key.bin", 'wb')
-        # f.write(key)
-        # f.close()
         with open("key.bin", "rb") as f:
             key = f.read()
+        #pdb.set_trace()
         self.keypair["private"] = key
         
- 
+        # f = open("key.bin", 'wb')
+        # f.write(key)
+        # f.close()
 
     def print_keypair(self):
         private = self.keypair["private"].export_key()
@@ -51,6 +52,13 @@ class AES(Algorithm):
         new_data = aes.encrypt(data)
         return new_data
 
+    def aes_ecb_encrypt_error(self, data, mode=AESL.MODE_ECB):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        aes = AESL.new(key, mode)
+        new_data = aes.encrypt(data)
+        return new_data
+        
     def decryption(self, **kwargs):
         if not "ciphertext" in kwargs:
             decrypted = None
@@ -67,7 +75,7 @@ class AES(Algorithm):
         #The default mode is ECB encryption
         key = self.keypair["private"]
         aes = AESL.new(key, mode)
-        new_data = aes.decrypt(data)
+        new_data = aes.decrypt(data[:-BLOCK_SIZE])
         return new_data
 
     def aes_ecb_decrypt_wrong(self, data, mode=AESL.MODE_ECB):
@@ -86,7 +94,13 @@ class AES(Algorithm):
         aes = AESL.new(key, mode, iv.encode())
         new_data = aes.encrypt(data)
         return new_data
-
+    def aes_cfb_encrypt(self, data, mode=AESL.MODE_CFB):
+        #The default mode is ECB encryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        new_data = aes.encrypt(data)
+        return new_data
     def aes_ofb_encrypt(self, data, mode=AESL.MODE_OFB):
         #The default mode is OFB  encryption
         key = self.keypair["private"]
@@ -125,4 +139,12 @@ class AES(Algorithm):
         iv = "0" * 16
         aes = AESL.new(key, mode, iv.encode())
         new_data = aes.decrypt(data[BLOCK_SIZE:])
+        return new_data
+
+    def aes_cfb_decrypt(self, data, mode=AESL.MODE_CFB):
+        #The default mode is OFB decryption
+        key = self.keypair["private"]
+        iv = "0" * 16
+        aes = AESL.new(key, mode, iv.encode())
+        new_data = aes.decrypt(data[:-BLOCK_SIZE])
         return new_data
