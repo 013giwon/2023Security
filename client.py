@@ -9,7 +9,7 @@ import pdb
 from patches import Patches
 import sys 
 import random
-# from bitstring import BitArray
+
 def trans_format_RGB(data):
     #tuple: Immutable, ensure that data is not lost
     red, green, blue = tuple(map(lambda e: [data[i] for i in range(0, len(data)) if i % 3 == e], [0, 1, 2]))
@@ -32,10 +32,9 @@ sock.connect((TCP_IP, TCP_PORT))
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 org_file = 'Jungkook.jpg'
 img = cv2.imread(org_file)
+# img = Image.open(org_file)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 faces = face_cascade.detectMultiScale(img, 1.3, 5)
-cap = cv2.VideoCapture(0)
-
 aes = AES("aes", 256)
 iteration = 1
 start1 = time.time()
@@ -45,31 +44,20 @@ for (x,y,w,h) in faces:
     img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
     roi_color = img[y:y+h, x:x+w]
 pdb.set_trace()
-picture_size = int (np.sqrt((np.array(roi_color).size/3)))
-im = trans_format_RGB(roi_color.flatten())
-im2 = Image.new(mode="RGB", size=(picture_size,picture_size))
-im2.putdata(im)
-im2.save("target_face"  + ".jpg") 
+cv2.imwrite("target_face.jpg", roi_color)
 
-end1 = time.time()
-print(mode + " key gen {} s".format(end1-start1))
-
-
-
-# patch_size = 21
-# stride = patch_size
 patch = Patches()
 
 for f in range (1):
     # ret, frame = cap.read()
     time.sleep(2)
     # get image
-    filename = "Jungkook.jpg"
+    filename = "target_face.jpg"
     original_img = Image.open(filename)
     
     # patch generation
     img_patched, img_num_pos= patch.patch_generation(original_img, stride, patch_size) 
-    # img_num_pos = [shuffled_idx, original_pos, original_idx, shuffled_pos]
+
     pdb.set_trace() # img_num_pos check
 
     picture_size = int (np.sqrt((np.array(img_patched).size/3)))
@@ -129,9 +117,7 @@ for f in range (1):
     pdb.set_trace()
 
     shuff_key_byte = bytes(str(shuffle_key), 'utf-8')
-
-    
-    
+ 
     # key encryption
     if mode == "ecb":
         start2 = time.time()
@@ -161,15 +147,13 @@ for f in range (1):
         sock.sendto(bytes([i]) + s[i * 19080:(i + 1) * 19080], (TCP_IP, TCP_PORT))
         resp = sock.recv(1024) #서버로부터 답신
         print(resp.decode())
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
 
     value_encrypt2 = np.array(encrypted_vector2)
     d_key = value_encrypt2.flatten()
     s_key = d_key.tostring()
     if resp.decode() == "please send the shuffle key":
         print("key send now!")
-        # sock.sendto(bytes([20]) + s_key + bytes([len(shuff_key_byte)]), (TCP_IP, TCP_PORT))  
+
         sock.sendto(bytes([20]) + s_key , (TCP_IP, TCP_PORT))
         #-------------------------------
         
